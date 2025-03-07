@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
 })
 
 function mostrarProductos() {
-    let productos = JSON.parse(localStorage.getItem("productos"))
+    let productos = JSON.parse(localStorage.getItem("productos")) || []
     if (productos.length === 0) {
         let limpiarZona = document.querySelectorAll(".cart-table tbody tr")
         btnResumen.classList.add("d-none")

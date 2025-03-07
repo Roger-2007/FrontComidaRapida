@@ -13,11 +13,13 @@ const descuento = document.querySelector(".promo")
 const subtotal = document.querySelector(".res-sub-total")
 const total = document.querySelector(".total")
 const opcion = document.querySelectorAll(".form-check-input")
+let metodoPago
 document.addEventListener("DOMContentLoaded", () => {
     mostrarDatos()
 })
 
 btnPagar.addEventListener("click", () => {
+    let proResumen = JSON.parse(localStorage.getItem("pro-resumen"))
     if (!nombresInput.value) {
         alert("Debes escribir tu nombre*")
     }
@@ -40,19 +42,29 @@ btnPagar.addEventListener("click", () => {
             email: emailInput.value,
             celular: celularInput.value,
             direccion: direccionInput.value,
-            direccion2: direccion2Input.value,
-            informacionAdicional: aditionalNote.value
+            direccion2: direccion2Input.value || "N/A",
+            informacionAdicional: aditionalNote.value || "N/A"
         }
         localStorage.setItem("cliente", JSON.stringify(datosCliente))
+        proResumen.totalMP = total.textContent
+        proResumen.metodoPago = metodoPago
+
+        localStorage.setItem("pro-resumen", JSON.stringify(proResumen))
+
+
         alert("Compra realizada correctamente")
-        location.href="thankyou.html"
+        location.href = "thankyou.html"
     }
 
 })
 
-function mostrarDatos() {
+function mostrarDatos(i) {
     let productosYDatos = JSON.parse(localStorage.getItem("pro-resumen")) || []
 
+    let borrarProductos = document.querySelectorAll(".productosCheckout div")
+    borrarProductos.forEach((productoBorrar) => {
+        productoBorrar.remove()
+    })
 
     productosYDatos.productos.forEach((producto) => {
         let fila = document.createElement("div")
@@ -64,19 +76,17 @@ function mostrarDatos() {
         `
         productosCheckout.appendChild(fila)
     })
-let porcentajeExtraPago = 0.05
-   const opcion1=document.querySelector("#cod")
-   opcion1.addEventListener("click",()=>{
-    porcentajeExtraPago=2
-    mostrarDatos()
-   })
-   const opcion2=document.querySelector("#cp")
-   opcion2.addEventListener("click",()=>{
-    porcentajeExtraPago=3
-    mostrarDatos()
 
-   })
+    let valorTipoDePago = 0.05
 
+    switch (i) {
+        case 0: valorTipoDePago
+            metodoPago = "Contraentrega"; break;
+        case 1: valorTipoDePago = 0.03
+            metodoPago = "PSE"; break;
+        case 2: valorTipoDePago = 0
+            metodoPago = "Transferencia"; break;
+    }
 
 
 
@@ -84,10 +94,19 @@ let porcentajeExtraPago = 0.05
     ciudadDomicilio.textContent = productosYDatos.domicilio
     descuento.textContent = productosYDatos.descuento
     subtotal.textContent = productosYDatos.subtotal
-    let valorTotal = (parseFloat(productosYDatos.total) + parseFloat(productosYDatos.total) * porcentajeExtraPago).toFixed(3)
+    let valorTotal = (parseFloat(productosYDatos.total) + parseFloat(productosYDatos.total) * valorTipoDePago).toFixed(3)
     total.textContent = valorTotal
 
 }
+
+opcion.forEach((option, i) => {
+    option.addEventListener("change", () => {
+        let valor = i
+
+        mostrarDatos(valor)
+    })
+
+})
 
 
 
